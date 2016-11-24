@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+import matplotlib.pyplot as plt
+
 from __future__ import division
 from __future__ import print_function
 from vizdoom import *
@@ -16,8 +19,8 @@ from tqdm import trange
 learning_rate = 0.00025
 # learning_rate = 0.0001
 discount_factor = 0.99
-epochs = 20
-learning_steps_per_epoch = 2000
+epochs = 2
+learning_steps_per_epoch = 500
 replay_memory_size = 10000
 
 # NN learning settings
@@ -198,6 +201,10 @@ def initialize_vizdoom(config_file_path):
 
 
 if __name__ == '__main__':
+	learning_scores = []
+
+	testing_scores = []	
+
     # Create Doom instance
     game = initialize_vizdoom(config_file_path)
 
@@ -237,8 +244,11 @@ if __name__ == '__main__':
                     train_episodes_finished += 1
 
             print("%d training episodes played." % train_episodes_finished)
-
-            train_scores = np.array(train_scores)
+			learning_scores.append(train_scores)
+			#train_scores now has all socres for this learning sessions
+			# make new array outside of scope to hold all scores, append this to learning_scores
+            
+			train_scores = np.array(train_scores)
 
             print("Results: mean: %.1f±%.1f," % (train_scores.mean(), train_scores.std()), \
                   "min: %.1f," % train_scores.min(), "max: %.1f," % train_scores.max())
@@ -257,6 +267,7 @@ if __name__ == '__main__':
                 test_scores.append(r)
 
             test_scores = np.array(test_scores)
+			testing_scores.append(test_scores)
             print("Results: mean: %.1f±%.1f," % (
                 test_scores.mean(), test_scores.std()), "min: %.1f" % test_scores.min(),
                   "max: %.1f" % test_scores.max())
@@ -291,3 +302,11 @@ if __name__ == '__main__':
         sleep(1.0)
         score = game.get_total_reward()
         print("Total score: ", score)
+
+	#graphing script
+	plt.plot(learning_scores)
+	plt.ylabel('Score')
+	plt.xlabel('Episode')
+	plt.title('Scored vs. Episode')
+	plt.savefig('graphs/healthgathering_baseline.png')
+	
